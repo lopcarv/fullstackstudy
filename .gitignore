@@ -1,0 +1,16 @@
+# Arquivos do Eclipse
+.project
+.settings/
+.metadata/
+bin/
+*.log
+
+# Arquivos compilados
+*.class
+/target/
+
+# Arquivos temporários
+*~
+.swp
+.DS_Store
+Thumbs.db
