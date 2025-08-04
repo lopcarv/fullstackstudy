@@ -1,0 +1,14 @@
+CALCSUPERAPZ - CALCULADORA COMERCIAL
+Desenvolvida por: Luis Carvalho | NEP Capanema
+Instituição: SENAC
+
+COMO USAR:
+1. Instale o Java (versão 8 ou superior)
+2. Coloque o arquivo senac-logo.png na mesma pasta (opcional)
+3. Clique duas vezes em CalCSuperAPZ.jar
+   - Ou execute: java -jar CalCSuperAPZ.jar
+
+DOWNLOAD JAVA (gratuito):
+https://adoptium.net/pt-br/
+
+© 2025 - Projeto educacional NEP Capanema
