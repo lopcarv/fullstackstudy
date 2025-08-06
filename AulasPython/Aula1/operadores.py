@@ -20,3 +20,10 @@ print("Maior que: " , n1 > n2)
 print("Maior ou Igual: " , n1 >= n2)
 print("Menor ou Igual: " , n1 <= n2)
 
+print()
+print("Operadores lógicos")
+print(aprovado)
+print(not aprovado)
+print(n1 >= 7 and minimo == 7)
+print(n1 >= 8 or minimo ==7)
+
