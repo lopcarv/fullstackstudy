@@ -6,6 +6,5 @@ numeros = [
     [73, 4, 7, 81],
     
     ]
-lista = numeros[2]
-print(lista[2])
+print(numeros[2][1])
     
