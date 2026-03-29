@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O que há dentro de um Rack de Servidor? | Checkpoint</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --surface2: #181c23;
+    --border: #1e2530;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --accent3: #7fff6b;
+    --text: #e8ecf0;
+    --muted: #6b7685;
+    --highlight: #1a2540;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 60px 0 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .blog-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .blog-name::before {
+    content: '//';
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .tag-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tag-line::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(2.4rem, 6vw, 3.8rem);
+    line-height: 1.1;
+    font-weight: 400;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+
+  h1 em {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  .meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .meta-item span {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* HERO VISUAL */
+  .hero-rack {
+    margin: 50px 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .rack-diagram {
+    background: var(--surface);
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .rack-unit {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--bg);
+    transition: all 0.2s;
+    cursor: default;
+    animation: slideIn 0.4s ease forwards;
+    opacity: 0;
+  }
+
+  .rack-unit:hover {
+    border-color: var(--accent);
+    background: var(--highlight);
+    transform: translateX(4px);
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .rack-unit:nth-child(1) { animation-delay: 0.05s; }
+  .rack-unit:nth-child(2) { animation-delay: 0.1s; }
+  .rack-unit:nth-child(3) { animation-delay: 0.15s; }
+  .rack-unit:nth-child(4) { animation-delay: 0.2s; }
+  .rack-unit:nth-child(5) { animation-delay: 0.25s; }
+  .rack-unit:nth-child(6) { animation-delay: 0.3s; }
+  .rack-unit:nth-child(7) { animation-delay: 0.35s; }
+  .rack-unit:nth-child(8) { animation-delay: 0.4s; }
+  .rack-unit:nth-child(9) { animation-delay: 0.45s; }
+  .rack-unit:nth-child(10) { animation-delay: 0.5s; }
+  .rack-unit:nth-child(11) { animation-delay: 0.55s; }
+  .rack-unit:nth-child(12) { animation-delay: 0.6s; }
+  .rack-unit:nth-child(13) { animation-delay: 0.65s; }
+  .rack-unit:nth-child(14) { animation-delay: 0.7s; }
+
+  .ru-led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: blink 2s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .ru-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    flex: 1;
+    letter-spacing: 0.5px;
+  }
+
+  .ru-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .tag-net { background: rgba(0,229,255,0.1); color: var(--accent); border: 1px solid rgba(0,229,255,0.2); }
+  .tag-sec { background: rgba(255,107,53,0.1); color: var(--accent2); border: 1px solid rgba(255,107,53,0.2); }
+  .tag-srv { background: rgba(127,255,107,0.1); color: var(--accent3); border: 1px solid rgba(127,255,107,0.2); }
+  .tag-pwr { background: rgba(255,200,0,0.1); color: #ffc800; border: 1px solid rgba(255,200,0,0.2); }
+  .tag-org { background: rgba(180,100,255,0.1); color: #b464ff; border: 1px solid rgba(180,100,255,0.2); }
+
+  /* SECTIONS */
+  .section {
+    padding: 48px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 2px;
+  }
+
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  .section-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    font-size: 16px;
+    color: #b0b8c4;
+    line-height: 1.8;
+    margin-bottom: 20px;
+    font-weight: 400;
+  }
+
+  strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* COMPONENT CARDS */
+  .components-grid {
+    display: grid;
+    gap: 12px;
+    margin: 28px 0;
+  }
+
+  .component-card {
+    display: flex;
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid;
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+
+  .component-card:hover { background: var(--surface2); }
+
+  .component-card.net { border-left-color: var(--accent); }
+  .component-card.sec { border-left-color: var(--accent2); }
+  .component-card.srv { border-left-color: var(--accent3); }
+  .component-card.pwr { border-left-color: #ffc800; }
+  .component-card.org { border-left-color: #b464ff; }
+
+  .cc-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .cc-name {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+  }
+
+  .cc-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* HIGHLIGHT BOX */
+  .callout {
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    background: var(--highlight);
+    padding: 24px 28px;
+    border-radius: 2px;
+    margin: 32px 0;
+  }
+
+  .callout-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .callout p {
+    margin: 0;
+    color: var(--text);
+    font-size: 15px;
+  }
+
+  /* CONCLUSION */
+  .conclusion {
+    padding: 56px 0 72px;
+  }
+
+  .conclusion h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 400;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+
+  .conclusion h2 em {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 40px 0;
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 28px 24px;
+    text-align: center;
+    transition: background 0.2s;
+  }
+
+  .stat:hover { background: var(--surface2); }
+
+  .stat-value {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.8rem;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 16px;
+  }
+
+  .footer-brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .footer-brand span { color: var(--accent); }
+
+  .tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .post-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 600px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .section-header { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="blog-name">Checkpoint</div>
+    <div class="tag-line">Infraestrutura de TI · Data Center</div>
+    <h1>O que há dentro de um<br><em>Rack de Servidor?</em></h1>
+    <p class="subtitle">Cada equipamento tem uma função crítica para manter rede, aplicações e segurança funcionando 24 horas por dia, 7 dias por semana. Vamos dissecar cada camada.</p>
+    <div class="meta">
+      <div class="meta-item">Por <span>Prof. Luis Orlando Carvalho</span></div>
+      <div class="meta-item">Categoria <span>Infraestrutura</span></div>
+      <div class="meta-item">Leitura <span>~6 min</span></div>
+    </div>
+  </header>
+
+  <!-- RACK VISUAL -->
+  <div class="hero-rack">
+    <div class="rack-diagram">
+      <div class="rack-unit">
+        <div class="ru-led" style="background:#b464ff; animation-delay:0s;"></div>
+        <span class="ru-name">Administrador de Cabos</span>
+        <span class="ru-tag tag-org">Organização</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:#b464ff; animation-delay:0.3s;"></div>
+        <span class="ru-name">Gestor de Cabeamento + Fibra Óptica</span>
+        <span class="ru-tag tag-org">Organização</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:#b464ff; animation-delay:0.6s;"></div>
+        <span class="ru-name">Patch Panel (Painel de Parcheo)</span>
+        <span class="ru-tag tag-org">Organização</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:var(--accent); animation-delay:0.1s;"></div>
+        <span class="ru-name">Switch Ethernet Principal</span>
+        <span class="ru-tag tag-net">Rede</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:var(--accent); animation-delay:0.4s;"></div>
+        <span class="ru-name">Switch Ethernet Secundário</span>
+        <span class="ru-tag tag-net">Rede</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:var(--accent2); animation-delay:0.2s;"></div>
+        <span class="ru-name">Firewall de Respaldo</span>
+        <span class="ru-tag tag-sec">Segurança</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:var(--accent3); animation-delay:0.5s;"></div>
+        <span class="ru-name">Armazenamento NAS</span>
+        <span class="ru-tag tag-srv">Servidor</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:var(--accent3); animation-delay:0.7s;"></div>
+        <span class="ru-name">Servidor de Aplicações</span>
+        <span class="ru-tag tag-srv">Servidor</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:var(--accent); animation-delay:0.3s;"></div>
+        <span class="ru-name">Roteador de Borda</span>
+        <span class="ru-tag tag-net">Rede</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:#ffc800; animation-delay:0s;"></div>
+        <span class="ru-name">PDU — Distribuição de Energia</span>
+        <span class="ru-tag tag-pwr">Energia</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:#ffc800; animation-delay:0.4s;"></div>
+        <span class="ru-name">Sistema UPS de Backup</span>
+        <span class="ru-tag tag-pwr">Energia</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:var(--muted); animation-delay:0.2s;"></div>
+        <span class="ru-name">Bandeja de Ventilação</span>
+        <span class="ru-tag tag-org">Cooling</span>
+      </div>
+      <div class="rack-unit">
+        <div class="ru-led" style="background:#ffc800; animation-delay:0.6s;"></div>
+        <span class="ru-name">Conmutador KVM (Gestão)</span>
+        <span class="ru-tag tag-pwr">Gestão</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="section">
+    <p>Um rack de servidor bem montado não é apenas uma pilha de hardware — é uma <strong>arquitetura cuidadosamente planejada</strong>, onde cada componente tem um papel específico. Organização, rede, segurança, armazenamento e energia: tudo isso precisa coexistir de forma eficiente em menos de dois metros de altura.</p>
+
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-value">99.9%</div>
+        <div class="stat-label">Uptime esperado</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">24/7</div>
+        <div class="stat-label">Operação contínua</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">5+</div>
+        <div class="stat-label">Camadas de infraestrutura</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: ORGANIZAÇÃO -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(180,100,255,0.1); color:#b464ff; border:1px solid rgba(180,100,255,0.2);">📦</div>
+      <div>
+        <div class="section-number">01 —</div>
+        <h2 class="section-title">Estrutura e Organização</h2>
+      </div>
+    </div>
+
+    <p>A base de qualquer rack eficiente é a <strong>organização do cabeamento</strong>. Antes mesmo de ligar qualquer equipamento, a forma como os cabos são gerenciados determina a velocidade com que problemas serão identificados e resolvidos no futuro.</p>
+
+    <div class="components-grid">
+      <div class="component-card org">
+        <div class="cc-icon">🔗</div>
+        <div>
+          <div class="cc-name">Administrador de Cabos</div>
+          <p class="cc-desc">Posicionado no topo do rack, organiza a entrada de todos os cabos externos. Garante que a passagem de cabos seja ordenada desde o início.</p>
+        </div>
+      </div>
+      <div class="component-card org">
+        <div class="cc-icon">📋</div>
+        <div>
+          <div class="cc-name">Gestor de Cabeamento Horizontal</div>
+          <p class="cc-desc">Distribui os cabos horizontalmente entre os equipamentos do rack. Reduz o excesso de cabos soltos e permite rastrear conexões com facilidade.</p>
+        </div>
+      </div>
+      <div class="component-card org">
+        <div class="cc-icon">💡</div>
+        <div>
+          <div class="cc-name">Organizador de Fibra Óptica</div>
+          <p class="cc-desc">A fibra óptica exige cuidados especiais — dobras bruscas comprometem o sinal. Este organizador garante curvaturas seguras e proteção física dos cabos.</p>
+        </div>
+      </div>
+      <div class="component-card org">
+        <div class="cc-icon">🔌</div>
+        <div>
+          <div class="cc-name">Patch Panel (Painel de Parcheo)</div>
+          <p class="cc-desc">O ponto central de conexões de rede. Permite reconfigurar conexões sem tocar diretamente nos switches, facilitando manutenção e organização.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">💡 Por que isso importa</div>
+      <p>Em uma falha de rede às 3h da manhã, cabos bem organizados significam a diferença entre 5 minutos e 1 hora de downtime. Organização não é estética — é operacionalidade.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 2: REDE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(0,229,255,0.1); color:var(--accent); border:1px solid rgba(0,229,255,0.2);">🌐</div>
+      <div>
+        <div class="section-number">02 —</div>
+        <h2 class="section-title">Equipamentos de Rede</h2>
+      </div>
+    </div>
+
+    <p>A camada de rede é responsável por <strong>mover dados com velocidade, segurança e inteligência</strong>. Cada componente aqui tem um papel distinto no fluxo do tráfego — desde a entrada da internet até o dispositivo final do usuário.</p>
+
+    <div class="components-grid">
+      <div class="component-card net">
+        <div class="cc-icon">⚡</div>
+        <div>
+          <div class="cc-name">Switch Ethernet Principal e Secundário</div>
+          <p class="cc-desc">O principal gerencia todo o tráfego interno da rede. O secundário funciona como redundância — se o principal falhar, o secundário assume sem interrupção perceptível.</p>
+        </div>
+      </div>
+      <div class="component-card net">
+        <div class="cc-icon">🔁</div>
+        <div>
+          <div class="cc-name">Roteador de Borda</div>
+          <p class="cc-desc">A porta de entrada e saída da internet. Gerencia o tráfego entre a rede interna e o mundo externo, aplicando políticas de roteamento e QoS.</p>
+        </div>
+      </div>
+      <div class="component-card sec">
+        <div class="cc-icon">🛡️</div>
+        <div>
+          <div class="cc-name">Firewall Principal e de Backup</div>
+          <p class="cc-desc">Inspeciona cada pacote que entra ou sai da rede. O firewall de backup garante que a segurança não seja comprometida mesmo em caso de falha do principal.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: SERVIDORES -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(127,255,107,0.1); color:var(--accent3); border:1px solid rgba(127,255,107,0.2);">🖥️</div>
+      <div>
+        <div class="section-number">03 —</div>
+        <h2 class="section-title">Servidores e Armazenamento</h2>
+      </div>
+    </div>
+
+    <p>É aqui que o trabalho acontece de fato. Os <strong>servidores processam aplicações, autenticam usuários e mantêm os dados da organização</strong>. A redundância nesta camada é fundamental para garantir disponibilidade.</p>
+
+    <div class="components-grid">
+      <div class="component-card srv">
+        <div class="cc-icon">⚙️</div>
+        <div>
+          <div class="cc-name">Servidor de Aplicações</div>
+          <p class="cc-desc">Hospeda os sistemas críticos da empresa — ERPs, CRMs, aplicações web, APIs. É o coração computacional do ambiente.</p>
+        </div>
+      </div>
+      <div class="component-card srv">
+        <div class="cc-icon">🔐</div>
+        <div>
+          <div class="cc-name">Servidor de Autenticação</div>
+          <p class="cc-desc">Gerencia identidades e acessos. Valida quem pode acessar o quê — Active Directory, LDAP, ou sistemas similares rodam aqui.</p>
+        </div>
+      </div>
+      <div class="component-card srv">
+        <div class="cc-icon">💾</div>
+        <div>
+          <div class="cc-name">NAS — Network Attached Storage</div>
+          <p class="cc-desc">Um repositório centralizado de arquivos e backups acessível via rede. Funciona como o disco rígido coletivo da organização, com redundância de dados incorporada.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: ENERGIA -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(255,200,0,0.1); color:#ffc800; border:1px solid rgba(255,200,0,0.2);">⚡</div>
+      <div>
+        <div class="section-number">04 —</div>
+        <h2 class="section-title">Energia e Redundância</h2>
+      </div>
+    </div>
+
+    <p>A infraestrutura mais sofisticada do mundo é inútil <strong>sem energia estável e redundante</strong>. Esta camada garante que uma queda de energia não derrube toda a operação.</p>
+
+    <div class="components-grid">
+      <div class="component-card pwr">
+        <div class="cc-icon">🔋</div>
+        <div>
+          <div class="cc-name">Sistema UPS de Backup</div>
+          <p class="cc-desc">Fornece energia de bateria instantaneamente em caso de queda. Mantém tudo funcionando por minutos a horas — tempo suficiente para acionar geradores ou fazer shutdown seguro.</p>
+        </div>
+      </div>
+      <div class="component-card pwr">
+        <div class="cc-icon">🔌</div>
+        <div>
+          <div class="cc-name">PDU — Power Distribution Unit</div>
+          <p class="cc-desc">Distribui energia para todos os equipamentos do rack. Modelos inteligentes permitem monitorar consumo por tomada e ligar/desligar remotamente.</p>
+        </div>
+      </div>
+      <div class="component-card pwr">
+        <div class="cc-icon">❄️</div>
+        <div>
+          <div class="cc-name">Bandejas de Ventilação</div>
+          <p class="cc-desc">Servidores geram calor intenso. As bandejas garantem fluxo de ar adequado, prevenindo superaquecimento — um dos principais causadores de falhas de hardware.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: GESTÃO -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(0,229,255,0.08); color:var(--accent); border:1px solid rgba(0,229,255,0.2);">🖱️</div>
+      <div>
+        <div class="section-number">05 —</div>
+        <h2 class="section-title">Gerenciamento Centralizado</h2>
+      </div>
+    </div>
+
+    <p>Um data center não é gerenciado servidor por servidor. O <strong>Switch KVM</strong> (Keyboard, Video, Mouse) permite que um administrador controle múltiplos servidores usando um único conjunto de periféricos. Isso elimina a necessidade de um teclado e monitor por máquina, tornando a gestão significativamente mais eficiente.</p>
+
+    <div class="callout">
+      <div class="callout-label">🎯 KVM na prática</div>
+      <p>Com um Switch KVM, o administrador alterna entre servidores com um simples atalho de teclado. Em ambientes com 10, 20 ou 50 servidores, isso representa horas economizadas por semana.</p>
+    </div>
+  </div>
+
+  <!-- CONCLUSÃO -->
+  <div class="conclusion">
+    <h2>Um rack organizado é uma <em>decisão estratégica</em></h2>
+    <p>Não se trata apenas de hardware bem disposto. Cada escolha de componente, cada cabo bem passado e cada camada de redundância representa uma decisão consciente de reduzir risco operacional.</p>
+    <p>Um rack bem montado entrega <strong>manutenção mais rápida</strong>, <strong>menos downtime</strong> e <strong>maior segurança operacional</strong> — três pilares que impactam diretamente o negócio, não apenas a TI.</p>
+
+    <div class="tags" style="margin-top: 40px;">
+      <span class="post-tag">Data Center</span>
+      <span class="post-tag">Infraestrutura</span>
+      <span class="post-tag">Redes</span>
+      <span class="post-tag">Servidores</span>
+      <span class="post-tag">Segurança TI</span>
+    </div>
+  </div>
+
+  <footer>
+    <div>
+      <div class="footer-brand"><span>Checkpoint</span></div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-top:6px;">Prof. Luis Orlando Carvalho</div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);">Março 2026</div>
+  </footer>
+
+</div>
+
+</body>
+</html>

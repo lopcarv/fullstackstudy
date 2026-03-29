@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentos de Lógica de Programação – Checkpoint</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1e9e5e;
+    --green-light: #d4f5e5;
+    --green-dark: #0c5c35;
+    --accent: #0ff27a;
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #c9d1d9;
+    --code-bg: #161b22;
+    --tag-bg: #1a2f22;
+    --tag-text: #3fb876;
+    --radius: 10px;
+    --font: 'Sora', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    font-size: 16px;
+  }
+
+  /* ===== TOP NAV ===== */
+  nav {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+  .logo-dot { color: var(--accent); }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    text-decoration: none;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-btn {
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--bg);
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    padding: 7px 16px;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: linear-gradient(135deg, #0d1117 0%, #091a12 50%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 5rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, rgba(0,255,122,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 820px; margin: 0 auto; position: relative; }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--tag-text);
+    background: var(--tag-bg);
+    border: 1px solid rgba(31,158,94,0.3);
+    border-radius: 4px;
+    padding: 5px 12px;
+    margin-bottom: 1.5rem;
+  }
+  .hero-tag .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; display: inline-block; }
+  h1.hero-title {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.2rem;
+    color: var(--text);
+  }
+  h1.hero-title span { color: var(--accent); }
+  .hero-desc {
+    font-size: 1.05rem;
+    color: var(--text2);
+    max-width: 640px;
+    margin-bottom: 2rem;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .author-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .author-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e9e5e, #0ff27a);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; color: var(--bg);
+    flex-shrink: 0;
+  }
+  .author-name { font-size: 14px; font-weight: 600; color: var(--text3); }
+  .author-role { font-size: 12px; color: var(--text2); }
+  .meta-divider { color: var(--border); }
+  .meta-info { font-size: 13px; color: var(--text2); }
+
+  /* ===== TOC SIDEBAR + CONTENT LAYOUT ===== */
+  .layout {
+
+	max-width: 900px;
+	  margin: 0 auto;
+	  padding: 3rem 2rem;
+	  display: block;
+
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .toc-wrap { display: none; }
+  }
+
+  /* ===== TOC ===== */
+  .toc-wrap {
+    position: sticky;
+    top: 72px;
+  }
+  .toc {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+  .toc-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text2);
+    margin-bottom: 1rem;
+  }
+  .toc ul { list-style: none; }
+  .toc ul li a {
+    font-size: 13px;
+    color: var(--text2);
+    text-decoration: none;
+    display: block;
+    padding: 4px 0;
+    border-left: 2px solid transparent;
+    padding-left: 10px;
+    transition: all .15s;
+    line-height: 1.4;
+  }
+  .toc ul li a:hover {
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+  .toc ul li a.sub { font-size: 12px; padding-left: 22px; color: var(--text2); }
+
+  /* ===== ARTICLE CONTENT ===== */
+  article { min-width: 0; }
+
+  .chapter {
+    margin-bottom: 4rem;
+    padding-bottom: 4rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .chapter:last-child { border-bottom: none; }
+
+  .chapter-number {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--tag-text);
+    margin-bottom: 0.5rem;
+    font-family: var(--mono);
+  }
+
+  h2.chapter-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+  }
+
+  h3.section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text3);
+    margin: 2rem 0 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.01em;
+  }
+  h3.section-title::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    background: var(--green);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text3);
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  p {
+    color: var(--text3);
+    margin-bottom: 1rem;
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    margin: 1.25rem 0;
+    position: relative;
+  }
+  pre::before {
+    content: 'python';
+    position: absolute;
+    top: 8px; right: 12px;
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  code {
+    font-family: var(--mono);
+    font-size: 13.5px;
+    color: #79c0ff;
+    line-height: 1.7;
+  }
+  p code {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 13px;
+    color: #79c0ff;
+  }
+
+  /* Lists */
+  ul, ol {
+    margin: 0.5rem 0 1.25rem 0;
+    padding-left: 1.5rem;
+  }
+  li {
+    color: var(--text3);
+    font-size: 15px;
+    font-weight: 300;
+    margin-bottom: 0.35rem;
+    line-height: 1.7;
+  }
+  li strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    border-left: 3px solid;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .callout.info { background: rgba(56,139,253,0.08); border-color: #388bfd; color: #79c0ff; }
+  .callout.warn { background: rgba(187,128,9,0.08); border-color: #d29922; color: #e3b341; }
+  .callout.danger { background: rgba(248,81,73,0.08); border-color: #f85149; color: #ffa198; }
+  .callout.success { background: rgba(30,158,94,0.08); border-color: var(--green); color: #3fb876; }
+  .callout strong { display: block; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; margin: 1.5rem 0; border-radius: var(--radius); border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead { background: var(--bg3); }
+  th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+  td { padding: 10px 16px; border-top: 1px solid var(--border); color: var(--text3); }
+  td code { font-size: 13px; color: #79c0ff; }
+  tr:hover td { background: var(--bg2); }
+
+  /* Chapter card grid */
+  .chapter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  .chapter-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    transition: border-color .2s, transform .2s;
+    cursor: default;
+  }
+  .chapter-card:hover {
+    border-color: rgba(15,242,122,0.4);
+    transform: translateY(-2px);
+  }
+  .chapter-card-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--tag-text);
+    margin-bottom: 6px;
+    letter-spacing: 0.08em;
+  }
+  .chapter-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  /* Exercise box */
+  .exercise-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .exercise-box-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--tag-text);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .exercise-box-title::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* Footer */
+  footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 3rem 2rem;
+    text-align: center;
+    margin-top: 4rem;
+  }
+  .footer-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.04em;
+    margin-bottom: 0.5rem;
+  }
+  .footer-logo span { color: var(--accent); }
+  footer p { font-size: 13px; color: var(--text2); font-weight: 300; }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+  strong { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+
+
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag"><span class="dot"></span> Lógica de Programação · Python</div>
+    <h1 class="hero-title">Fundamentos de<br><span>Lógica de Programação</span></h1>
+    <p class="hero-desc">Do zero ao pensamento algorítmico com Python: variáveis, estruturas de decisão, repetição, coleções e projeto final integrador.</p>
+    <div class="hero-meta">
+      <div class="author-card">
+        <div class="author-avatar">LC</div>
+        <div>
+          <div class="author-name">Prof. Luis Orlando Carvalho</div>
+          <div class="author-role">Docente · Lógica &amp; Python</div>
+        </div>
+      </div>
+      <span class="meta-divider">|</span>
+      <span class="meta-info">7 capítulos</span>
+      <span class="meta-divider">|</span>
+      <span class="meta-info">Leitura completa</span>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+	
+  
+
+  <!-- ARTICLE -->
+  <article>
+
+    <!-- Visão Geral -->
+    <div class="chapter" style="border-bottom:none; margin-bottom:2rem; padding-bottom:2rem;">
+      <p>Este material cobre os fundamentos essenciais da lógica de programação utilizando <strong>Python 3</strong> como linguagem de referência. Organizado em sete capítulos, conduz o estudante desde a instalação do ambiente até o desenvolvimento de um projeto prático completo.</p>
+      <div class="chapter-grid">
+        <div class="chapter-card"><div class="chapter-card-num">CAP 01</div><div class="chapter-card-title">Introdução e Configuração</div></div>
+        <div class="chapter-card"><div class="chapter-card-num">CAP 02</div><div class="chapter-card-title">Variáveis e Tipos de Dados</div></div>
+        <div class="chapter-card"><div class="chapter-card-num">CAP 03</div><div class="chapter-card-title">Entrada, Saída e Operadores</div></div>
+        <div class="chapter-card"><div class="chapter-card-num">CAP 04</div><div class="chapter-card-title">Estruturas de Seleção</div></div>
+        <div class="chapter-card"><div class="chapter-card-num">CAP 05</div><div class="chapter-card-title">Estruturas de Repetição</div></div>
+        <div class="chapter-card"><div class="chapter-card-num">CAP 06</div><div class="chapter-card-title">Coleções de Dados (Listas)</div></div>
+        <div class="chapter-card"><div class="chapter-card-num">CAP 07</div><div class="chapter-card-title">Projeto Final — Calculadora de IMC</div></div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- CAPÍTULO 1 -->
+    <div class="chapter" id="cap1">
+      <div class="chapter-number">Capítulo 01</div>
+      <h2 class="chapter-title">Introdução e Configuração</h2>
+
+      <h3 class="section-title">O que é Programação e por que Python?</h3>
+      <p>A <strong>programação</strong> é o ato de fornecer um conjunto de instruções para que um computador execute tarefas específicas. Todos os programas utilizam instruções básicas como blocos de construção, seguindo lógicas como "faça isso; então faça aquilo" ou "se a condição for verdadeira, execute esta ação".</p>
+      <p><strong>Python</strong> é uma linguagem de <strong>alto nível</strong>, projetada para ser próxima da linguagem humana. Desenvolvida no final da década de 1980 por <strong>Guido van Rossum</strong> na Holanda e lançada oficialmente em 1991, recebeu seu nome em homenagem ao grupo de comédia <em>Monty Python</em>.</p>
+
+      <h3 class="section-title">Características Técnicas</h3>
+      <ul>
+        <li><strong>Interpretada:</strong> O interpretador lê o código-fonte linha por linha e o converte em tempo real, facilitando a depuração e o desenvolvimento rápido.</li>
+        <li><strong>Dinamicamente Tipada:</strong> Não é necessário declarar o tipo da variável; o sistema infere automaticamente com base no valor atribuído.</li>
+        <li><strong>Multiplataforma:</strong> Funciona em Windows, Linux e macOS, sendo gratuita e de código aberto.</li>
+        <li><strong>Versátil:</strong> Utilizada em Ciência de Dados, Inteligência Artificial, desenvolvimento web, automação e criação de jogos.</li>
+      </ul>
+
+      <h3 class="section-title">Modos de Uso do Python</h3>
+      <ul>
+        <li><strong>Shell Interativo:</strong> Ideal para testar expressões. Identificado pelo prompt <code>&gt;&gt;&gt;</code>.</li>
+        <li><strong>Modo Script:</strong> Código completo salvo com extensão <code>.py</code> e executado como programa.</li>
+      </ul>
+
+      <h3 class="section-title">Configuração do Ambiente</h3>
+      <h4>Windows</h4>
+      <ul>
+        <li>Baixe em <code>python.org/downloads</code></li>
+        <li><strong>Importante:</strong> Marque "Add Python to PATH" durante a instalação.</li>
+      </ul>
+      <h4>Linux (Ubuntu)</h4>
+      <pre><code>sudo apt-get update
+sudo apt-get install python3
+sudo apt-get install idle3</code></pre>
+      <h4>macOS</h4>
+      <pre><code>brew install python3</code></pre>
+
+      <h3 class="section-title">Editores Recomendados</h3>
+      <ul>
+        <li><strong>VS Code:</strong> O mais popular, gratuito e com extensão oficial para Python.</li>
+        <li><strong>IDLE:</strong> Editor padrão que acompanha o Python. Simples e bom para iniciantes.</li>
+        <li><strong>Geany:</strong> Leve e eficiente para Windows e Linux.</li>
+        <li><strong>Sublime Text:</strong> Rápido e elegante, muito comum no macOS.</li>
+        <li><strong>Online:</strong> Programiz, Repl.it ou Google Colab.</li>
+      </ul>
+
+      <h3 class="section-title">Primeiro Programa: "Olá Mundo!"</h3>
+      <pre><code>print("Olá Mundo!")</code></pre>
+      <p>A função <code>print()</code> exibe informações na tela. O texto dentro das aspas é chamado de <strong>String</strong>.</p>
+
+      <h3 class="section-title">Boas Práticas — PEP 8</h3>
+      <ul>
+        <li><strong>Indentação:</strong> 4 espaços por nível de recuo.</li>
+        <li><strong>Comentários:</strong> Use <code>#</code> para notas explicativas.</li>
+        <li><strong>Nomenclatura:</strong> Use <code>snake_case</code> (ex: <code>nome_do_usuario</code>).</li>
+        <li><strong>Tamanho de linha:</strong> Máximo de 79 caracteres.</li>
+      </ul>
+
+      <h3 class="section-title">Erros Comuns</h3>
+      <ul>
+        <li><strong>SyntaxError:</strong> Parêntese, aspas ou dois-pontos ausentes.</li>
+        <li><strong>NameError:</strong> Variável não definida ou nome digitado errado.</li>
+        <li><strong>IndentationError:</strong> Código não recuado corretamente após um bloco.</li>
+      </ul>
+
+      <h3 class="section-title">Exemplo Prático: Interação Básica</h3>
+      <pre><code># Este programa pergunta o nome e saúda o usuário
+nome = input("Qual é o seu nome? ")
+print(f"Olá, {nome}! Bem-vindo ao mundo do Python.")</code></pre>
+
+      <div class="exercise-box">
+        <div class="exercise-box-title">Exercícios de Fixação</div>
+        <ol>
+          <li>Abra o terminal e descubra qual versão do Python 3 está instalada. Salve em <code>versao.txt</code> usando redirecionamento de saída.</li>
+          <li>Escreva <code>Print("Teste")</code> com 'P' maiúsculo e leia a mensagem de erro gerada. Por que acontece?</li>
+          <li>Crie um programa que peça dois números inteiros e exiba a soma, subtração e multiplicação.</li>
+          <li>Pegue o código anterior e adicione espaços ao redor dos operadores e comentários (PEP 8).</li>
+          <li>Se usa Windows, verifique se o Python está no PATH digitando <code>python</code> no CMD.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- CAPÍTULO 2 -->
+    <div class="chapter" id="cap2">
+      <div class="chapter-number">Capítulo 02</div>
+      <h2 class="chapter-title">Variáveis e Tipos de Dados em Python</h2>
+
+      <h3 class="section-title">O que são Variáveis?</h3>
+      <p>Uma <strong>variável</strong> é um espaço reservado na memória RAM do computador para armazenamento temporário de informações. Funciona como uma <strong>caixa rotulada</strong> onde guardamos um valor para uso posterior.</p>
+      <p>Os dados em variáveis são voláteis — existem apenas enquanto o programa está em execução. A sintaxe básica de atribuição é:</p>
+      <pre><code>mensagem = "Olá mundo!"
+idade = 25
+preco = 10.50</code></pre>
+
+      <h3 class="section-title">Regras de Nomenclatura</h3>
+      <ul>
+        <li>Pode conter letras, números e underscores (<code>_</code>).</li>
+        <li>Deve começar com letra ou underscore — nunca com número.</li>
+        <li>Sem espaços, acentos, hifens ou caracteres especiais (<code>@</code>, <code>$</code>, <code>!</code>).</li>
+        <li>Não usar palavras reservadas como <code>print</code>, <code>input</code>, <code>if</code>, <code>for</code>, <code>class</code>.</li>
+        <li>Python diferencia maiúsculas de minúsculas: <code>spam</code>, <code>SPAM</code> e <code>Spam</code> são três variáveis distintas.</li>
+      </ul>
+
+      <div class="callout info"><strong>Convenção</strong> A PEP 8 recomenda snake_case para variáveis: <code>nome_do_usuario</code> é preferível a <code>nomeDoUsuario</code>.</div>
+
+      <h3 class="section-title">Tipos de Dados Fundamentais</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tipo</th><th>Palavra-chave</th><th>Exemplo</th><th>Descrição</th></tr></thead>
+          <tbody>
+            <tr><td>Inteiro</td><td><code>int</code></td><td><code>idade = 25</code></td><td>Números sem casas decimais</td></tr>
+            <tr><td>Ponto flutuante</td><td><code>float</code></td><td><code>preco = 10.50</code></td><td>Números decimais/fracionários</td></tr>
+            <tr><td>Texto</td><td><code>str</code></td><td><code>nome = "Maria"</code></td><td>Sequência de caracteres</td></tr>
+            <tr><td>Booleano</td><td><code>bool</code></td><td><code>ativo = True</code></td><td>Verdadeiro ou Falso</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="section-title">Conversão de Tipos (Casting)</h3>
+      <p>O <code>input()</code> sempre retorna <strong>string</strong>. Para operações matemáticas, converta:</p>
+      <pre><code>idade = int(input("Digite sua idade: "))
+preco = float(input("Digite o preço: "))
+texto = str(42)  # inteiro para texto</code></pre>
+
+      <h3 class="section-title">Operadores Aritméticos</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Operador</th><th>Significado</th><th>Exemplo</th><th>Resultado</th></tr></thead>
+          <tbody>
+            <tr><td><code>+</code></td><td>Soma</td><td><code>10 + 5</code></td><td>15</td></tr>
+            <tr><td><code>-</code></td><td>Subtração</td><td><code>10 - 5</code></td><td>5</td></tr>
+            <tr><td><code>*</code></td><td>Multiplicação</td><td><code>10 * 5</code></td><td>50</td></tr>
+            <tr><td><code>/</code></td><td>Divisão (float)</td><td><code>10 / 3</code></td><td>3.33...</td></tr>
+            <tr><td><code>//</code></td><td>Divisão inteira</td><td><code>10 // 3</code></td><td>3</td></tr>
+            <tr><td><code>%</code></td><td>Resto (MOD)</td><td><code>10 % 3</code></td><td>1</td></tr>
+            <tr><td><code>**</code></td><td>Potência</td><td><code>2 ** 4</code></td><td>16</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="section-title">Exemplo Prático: Calculadora de IMC</h3>
+      <pre><code>peso = float(input("Digite seu peso (kg): "))
+altura = float(input("Digite sua altura (m): "))
+
+imc = peso / (altura ** 2)
+print(f"Seu IMC é: {imc:.2f}")</code></pre>
+
+      <div class="exercise-box">
+        <div class="exercise-box-title">Exercícios de Fixação</div>
+        <ol>
+          <li>Quais das variáveis abaixo são válidas? <code>nome_usuario</code>, <code>2_nota</code>, <code>valor total</code>, <code>__media</code>, <code>print</code>, <code>salário</code>.</li>
+          <li>Qual o resultado de: <code>15 // 4</code>, <code>15 % 4</code>, <code>3 ** 3</code>, <code>"Python" * 3</code>?</li>
+          <li>Crie um script que calcule o total de uma compra e exiba com duas casas decimais.</li>
+          <li>Armazene seu nome completo e exiba em maiúsculas, minúsculas e com iniciais maiúsculas.</li>
+          <li>Informe se um número é par ou ímpar usando o operador <code>%</code>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- CAPÍTULO 3 -->
+    <div class="chapter" id="cap3">
+      <div class="chapter-number">Capítulo 03</div>
+      <h2 class="chapter-title">Comandos de Entrada, Saída e Operadores</h2>
+
+      <h3 class="section-title">Saída de Dados com print()</h3>
+      <p>A função <code>print()</code> exibe informações no console. Aceita textos estáticos e variáveis.</p>
+
+      <h4>Formas de Formatação</h4>
+      <pre><code># Concatenação
+print("Nome: " + nome)
+
+# Método .format()
+print("O nome é {} e ele tem {} anos.".format(nome, idade))
+
+# f-strings (recomendado — Python 3.6+)
+print(f"Olá, {nome}! Você tem {idade} anos.")
+
+# Formatar casas decimais
+print(f"Preço: R$ {valor:.2f}")</code></pre>
+
+      <h4>Caracteres de Escape</h4>
+      <ul>
+        <li><code>\n</code> — Nova linha</li>
+        <li><code>\t</code> — Tabulação horizontal</li>
+        <li><code>end=''</code> — Mantém na mesma linha</li>
+      </ul>
+
+      <h3 class="section-title">Entrada de Dados com input()</h3>
+      <div class="callout warn"><strong>Regra de Ouro</strong> O input() SEMPRE retorna uma string, mesmo que o usuário digite um número. Converta com int() ou float() para usar em cálculos.</div>
+      <pre><code>nome = input("Digite seu nome: ")
+idade = int(input("Digite sua idade: "))
+altura = float(input("Digite sua altura (m): "))</code></pre>
+
+      <h3 class="section-title">Operadores de Comparação</h3>
+      <p>Comparam dois valores e retornam <code>True</code> ou <code>False</code>:</p>
+      <ul>
+        <li><code>==</code> — Igual a</li>
+        <li><code>!=</code> — Diferente de</li>
+        <li><code>&gt;</code> e <code>&lt;</code> — Maior que e Menor que</li>
+        <li><code>&gt;=</code> e <code>&lt;=</code> — Maior/menor ou igual</li>
+      </ul>
+
+      <h3 class="section-title">Operadores Lógicos</h3>
+      <ul>
+        <li><code>and</code> — Verdadeiro somente se <strong>ambas</strong> as condições forem verdadeiras.</li>
+        <li><code>or</code> — Verdadeiro se <strong>pelo menos uma</strong> for verdadeira.</li>
+        <li><code>not</code> — Inverte o valor lógico.</li>
+      </ul>
+
+      <h3 class="section-title">Operadores de Atribuição Expandidos</h3>
+      <pre><code>x += 1   # equivale a x = x + 1
+x -= 5   # equivale a x = x - 5
+x *= 2   # equivale a x = x * 2
+x /= 3   # equivale a x = x / 3</code></pre>
+
+      <h3 class="section-title">Exemplo: Calculadora de Média</h3>
+      <pre><code>nome_aluno = input("Nome do aluno: ")
+nota1 = float(input("Digite a primeira nota: "))
+nota2 = float(input("Digite a segunda nota: "))
+
+media = (nota1 + nota2) / 2
+print(f"O aluno {nome_aluno} obteve a média {media:.1f}")</code></pre>
+
+      <div class="exercise-box">
+        <div class="exercise-box-title">Exercícios de Fixação</div>
+        <ol>
+          <li>Qual o resultado de <code>15 // 4</code>, <code>15 % 4</code>, <code>3 ** 3</code>?</li>
+          <li>Peça o ano de nascimento e exiba quantos anos o usuário terá em 2030.</li>
+          <li>Peça nome de produto, quantidade e preço unitário. Exiba o total com f-string.</li>
+          <li>Crie um programa que informe se um número é par ou ímpar usando <code>%</code>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- CAPÍTULO 4 -->
+    <div class="chapter" id="cap4">
+      <div class="chapter-number">Capítulo 04</div>
+      <h2 class="chapter-title">Estruturas de Seleção (Decisão)</h2>
+
+      <h3 class="section-title">Estrutura Simples: if</h3>
+      <p>Executa um bloco de código <strong>apenas se</strong> a condição for verdadeira.</p>
+      <pre><code>if condição:
+    # bloco executado se True</code></pre>
+      <div class="callout success"><strong>Regra de Ouro</strong> Em Python, a INDENTAÇÃO (4 espaços) define a hierarquia do código. Esquecer de indentar gera IndentationError.</div>
+
+      <h3 class="section-title">Estrutura Composta: if-else</h3>
+      <pre><code>idade = 15
+if idade >= 18:
+    print("Pode dirigir")
+else:
+    print("Não pode dirigir")</code></pre>
+
+      <h3 class="section-title">Seleção Múltipla: if-elif-else</h3>
+      <pre><code>nota = 7
+if nota >= 7:
+    print("Aprovado")
+elif nota >= 5:
+    print("Recuperação")
+else:
+    print("Reprovado")</code></pre>
+
+      <h3 class="section-title">Operador Ternário</h3>
+      <pre><code>resultado = "Aprovado" if nota >= 7 else "Reprovado"</code></pre>
+
+      <h3 class="section-title">match case (Python 3.10+)</h3>
+      <p>Útil para comparar uma variável com várias constantes, mais legível que longas cadeias de <code>elif</code>. Funciona de forma similar ao <em>switch</em> de outras linguagens.</p>
+
+      <h3 class="section-title">Projeto: Classificação de IMC</h3>
+      <pre><code>nome = input("Seu nome: ")
+peso = float(input("Peso (kg): "))
+altura = float(input("Altura (m): "))
+
+imc = peso / (altura ** 2)
+
+if imc < 18.5:
+    classificacao = "Abaixo do peso"
+elif imc < 25:
+    classificacao = "Peso normal"
+elif imc < 30:
+    classificacao = "Sobrepeso"
+else:
+    classificacao = "Obesidade"
+
+print(f"\n{nome}, seu IMC é: {imc:.2f}")
+print(f"Classificação: {classificacao}")</code></pre>
+
+      <div class="exercise-box">
+        <div class="exercise-box-title">Exercícios de Fixação</div>
+        <ol>
+          <li>Qual o resultado de <code>a = 10; b = 5; print(a > 5 and b < 10)</code>? E de <code>print(not(10 == 10))</code>?</li>
+          <li>Escreva um programa que informe se um número é par ou ímpar.</li>
+          <li>Crie um sistema de login simples: usuário "admin" e senha "1234" concede acesso.</li>
+          <li>Receba três números e exiba qual é o maior.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- CAPÍTULO 5 -->
+    <div class="chapter" id="cap5">
+      <div class="chapter-number">Capítulo 05</div>
+      <h2 class="chapter-title">Estruturas de Repetição (Laços)</h2>
+
+      <h3 class="section-title">O Conceito de Iteração</h3>
+      <p>A <strong>iteração</strong> é o processo no qual um conjunto de instruções é repetido em sequência por um número específico de vezes ou até que uma condição seja alcançada. Laços evitam código repetitivo e tornam programas eficientes e escaláveis.</p>
+
+      <h3 class="section-title">while — Enquanto</h3>
+      <p>Executa um bloco <strong>enquanto</strong> a condição for verdadeira.</p>
+      <pre><code>contador = 1
+while contador <= 5:
+    print(contador)
+    contador += 1</code></pre>
+      <div class="callout danger"><strong>Cuidado</strong> Se você esquecer de atualizar a variável de controle, o programa entrará em LOOP INFINITO. Para interromper: pressione CTRL+C no terminal.</div>
+
+      <h4>Valores Truthy e Falsey</h4>
+      <pre><code># Loop de validação de entrada
+nome = ''
+while not nome:
+    nome = input("Por favor, digite seu nome: ")</code></pre>
+
+      <h3 class="section-title">for — Para</h3>
+      <p>Ideal para iterar sobre sequências ou quando se sabe o número de repetições.</p>
+      <pre><code>magicos = ['alice', 'david', 'carolina']
+for magico in magicos:
+    print(magico.title() + ", isso foi um ótimo truque!")</code></pre>
+
+      <h4>A função range()</h4>
+      <pre><code>range(5)           # 0, 1, 2, 3, 4
+range(1, 6)        # 1, 2, 3, 4, 5
+range(0, 10, 2)    # 0, 2, 4, 6, 8 (pares)</code></pre>
+
+      <h3 class="section-title">Contadores e Acumuladores</h3>
+      <pre><code># Somatório de Gauss: soma de 1 a 100
+total = 0
+for num in range(1, 101):
+    total += num
+print(f"A soma total é: {total}")</code></pre>
+
+      <h3 class="section-title">break e continue</h3>
+      <ul>
+        <li><strong>break</strong> — Sai imediatamente do laço.</li>
+        <li><strong>continue</strong> — Pula para a próxima iteração, ignorando o restante do ciclo atual.</li>
+      </ul>
+
+      <h3 class="section-title">Laços Aninhados</h3>
+      <pre><code># Tabuada completa
+for i in range(1, 11):
+    for j in range(1, 11):
+        print(f"{i} x {j} = {i*j}")</code></pre>
+
+      <div class="exercise-box">
+        <div class="exercise-box-title">Exercícios de Fixação</div>
+        <ol>
+          <li>Contagem regressiva de 10 até 1 com <code>while</code>. Exiba "Fogo!" ao final.</li>
+          <li>Peça notas entre 0 e 10. Enquanto inválido, continue pedindo.</li>
+          <li>Dada a lista <code>precos = [10.50, 20.00, 5.90, 50.00]</code>, calcule a média.</li>
+          <li>"Papagaio": repita o que o usuário digita até ele escrever "sair".</li>
+          <li>Gere a tabuada de todos os números do 1 ao 10 com laços aninhados.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- CAPÍTULO 6 -->
+    <div class="chapter" id="cap6">
+      <div class="chapter-number">Capítulo 06</div>
+      <h2 class="chapter-title">Coleções de Dados (Listas)</h2>
+
+      <h3 class="section-title">O que é uma Lista?</h3>
+      <p>Uma lista é uma coleção de itens mantidos em uma ordem específica. Permite armazenar múltiplos valores em uma única variável, de tipos diferentes.</p>
+      <pre><code>bicicletas = ['trek', 'cannondale', 'redline', 'specialized']
+dados_mistos = ['python', 42, 3.14, True]
+lista_vazia = []</code></pre>
+
+      <h3 class="section-title">Índices e Acesso</h3>
+      <div class="callout info"><strong>Começa em 0</strong> O primeiro item está no índice 0, o segundo no índice 1, e assim por diante. O índice -1 retorna o último elemento.</div>
+      <pre><code>print(bicicletas[0])   # 'trek'
+print(bicicletas[-1])  # 'specialized'
+print(bicicletas[1:3]) # ['cannondale', 'redline'] — slicing</code></pre>
+
+      <h3 class="section-title">Manipulando Elementos</h3>
+      <pre><code># Adicionar
+bicicletas.append('honda')           # ao final
+bicicletas.insert(0, 'ducati')       # em qualquer posição
+
+# Remover
+del bicicletas[0]                    # por índice, sem retorno
+ultima = bicicletas.pop()            # remove e retorna o último
+bicicletas.remove('cannondale')      # por valor (primeira ocorrência)
+
+# Alterar
+bicicletas[0] = 'nova_marca'</code></pre>
+
+      <h3 class="section-title">Ordenação e Estatísticas</h3>
+      <pre><code>bicicletas.sort()                  # permanente, crescente
+bicicletas.sort(reverse=True)      # permanente, decrescente
+print(sorted(bicicletas))          # temporário
+
+numeros = [10, 5, 30, 2]
+print(len(numeros))    # 4
+print(min(numeros))    # 2
+print(max(numeros))    # 30
+print(sum(numeros))    # 47</code></pre>
+
+      <h3 class="section-title">Percorrendo com for</h3>
+      <pre><code>magicos = ['alice', 'david', 'carolina']
+for magico in magicos:
+    print(f"{magico.title()}, esse foi um ótimo truque!")</code></pre>
+
+      <h3 class="section-title">List Comprehension</h3>
+      <pre><code># Forma compacta: lista de quadrados de 1 a 10
+quadrados = [valor**2 for valor in range(1, 11)]
+print(quadrados)</code></pre>
+
+      <h3 class="section-title">Referências vs. Cópias</h3>
+      <div class="callout warn"><strong>Atenção</strong> Ao atribuir uma lista a outra variável, você cria uma REFERÊNCIA, não uma cópia. Alterações em uma afetam a outra.</div>
+      <pre><code>lista_a = [1, 2, 3]
+lista_b = lista_a        # referência!
+lista_b.append(4)
+print(lista_a)           # [1, 2, 3, 4] — lista_a também mudou!
+
+# Para copiar:
+lista_c = lista_a[:]     # slicing cria cópia independente</code></pre>
+
+      <div class="exercise-box">
+        <div class="exercise-box-title">Exercícios de Fixação</div>
+        <ol>
+          <li>Dado <code>frutas = ['maçã', 'banana', 'cereja', 'damasco', 'amora']</code>, como obter <code>['banana', 'cereja']</code>?</li>
+          <li>Crie lista vazia <code>convidados</code>, adicione 'Ana', 'Beto', 'Carlos'. Insira 'Duda' no início. Remova o último e mostre quem foi.</li>
+          <li>Qual a diferença entre <code>print(sorted(lista))</code> e <code>lista.sort()</code>?</li>
+          <li>Crie uma matriz 3×3 (lista de listas) e imprima cada valor com laços aninhados.</li>
+          <li>Dada uma lista de números, imprima apenas os maiores que 10 e pares.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- CAPÍTULO 7 -->
+    <div class="chapter" id="cap7">
+      <div class="chapter-number">Capítulo 07</div>
+      <h2 class="chapter-title">Projeto Final — Calculadora de IMC</h2>
+
+      <h3 class="section-title">Descrição do Algoritmo</h3>
+      <p>O IMC é calculado dividindo o peso (kg) pela altura (m) ao quadrado. Este projeto integra todos os conceitos estudados: entrada de dados, conversão de tipos, cálculo matemático, estruturas de seleção e f-strings.</p>
+      <ol>
+        <li><strong>Entrada:</strong> Nome, peso e altura do usuário.</li>
+        <li><strong>Conversão:</strong> Texto recebido transformado em <code>float</code>.</li>
+        <li><strong>Processamento:</strong> <code>imc = peso / (altura ** 2)</code>.</li>
+        <li><strong>Classificação:</strong> Comparação com tabela da OMS.</li>
+        <li><strong>Saída:</strong> Valor formatado e categoria de saúde.</li>
+      </ol>
+
+      <h3 class="section-title">Implementação Básica</h3>
+      <pre><code>nome = input("Digite seu nome: ")
+peso = float(input("Digite seu peso (kg): "))
+altura = float(input("Digite sua altura (m): "))
+
+imc = peso / (altura ** 2)
+
+if imc < 18.5:
+    classificacao = "Abaixo do peso"
+elif imc < 25:
+    classificacao = "Peso normal"
+elif imc < 30:
+    classificacao = "Sobrepeso"
+else:
+    classificacao = "Obesidade"
+
+print(f"\n{nome}, seu IMC é: {imc:.2f}")
+print(f"Classificação: {classificacao}")</code></pre>
+
+      <h3 class="section-title">Versão com Tratamento de Erros</h3>
+      <pre><code>try:
+    peso = float(input("Peso (kg): "))
+    altura = float(input("Altura (m): "))
+    imc = peso / (altura ** 2)
+    print(f"Seu IMC é: {imc:.2f}")
+except ValueError:
+    print("Erro: digite apenas números usando ponto como separador decimal.")
+except ZeroDivisionError:
+    print("Erro: a altura não pode ser zero.")</code></pre>
+
+      <h3 class="section-title">Versão Completa com Loop e Lista</h3>
+      <pre><code>registros = []
+
+while True:
+    try:
+        nome = input("\nNome (ou 'sair' para encerrar): ")
+        if nome.lower() == 'sair':
+            break
+
+        peso = float(input("Peso (kg): "))
+        altura = float(input("Altura (m): "))
+        imc = peso / (altura ** 2)
+
+        if imc < 18.5:
+            classificacao = "Abaixo do peso"
+        elif imc < 25:
+            classificacao = "Peso normal"
+        elif imc < 30:
+            classificacao = "Sobrepeso"
+        elif imc < 40:
+            classificacao = "Obesidade"
+        else:
+            classificacao = "Obesidade Grave"
+
+        registros.append({'nome': nome, 'imc': imc})
+        print(f"{nome} → IMC: {imc:.2f} ({classificacao})")
+
+    except ValueError:
+        print("Entrada inválida. Use ponto como separador decimal.")
+    except ZeroDivisionError:
+        print("Altura não pode ser zero.")
+
+if registros:
+    maior = max(registros, key=lambda r: r['imc'])
+    print(f"\nMaior IMC da sessão: {maior['nome']} ({maior['imc']:.2f})")</code></pre>
+
+      <div class="exercise-box">
+        <div class="exercise-box-title">Exercícios de Fixação</div>
+        <ol>
+          <li>Por que usar <code>float()</code> e não <code>int()</code> para capturar a altura?</li>
+          <li>Refaça o cálculo substituindo <code>(altura ** 2)</code> por <code>(altura * altura)</code>. O resultado é igual? Qual tem maior precedência?</li>
+          <li>Adicione a categoria "Obesidade Grave" para IMC acima de 40. Onde inserir na cadeia <code>elif</code>?</li>
+          <li>Crie um script que peça a idade do usuário com <code>try/except</code> para tratar entradas inválidas.</li>
+          <li>Integre uma lista ao projeto. Após 5 cálculos, exiba o nome da pessoa com maior IMC registrado.</li>
+        </ol>
+      </div>
+
+      <h3 class="section-title">Considerações Finais</h3>
+      <p>O projeto da Calculadora de IMC demonstra que programar é traduzir necessidades humanas em um fluxo lógico e seguro. A aplicação correta da <strong>indentação</strong> e o uso de <strong>comentários</strong> (<code>#</code>) garantem código limpo e fácil de manter por outros desenvolvedores.</p>
+
+      <div class="callout success"><strong>Próximos Passos</strong> Ao dominar esses fundamentos, você estará pronto para explorar funções, módulos, orientação a objetos e frameworks como Flask e Django.</div>
+    </div>
+
+  </article>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">check<span>.</span>point</div>
+  <p style="margin-bottom:0.5rem;">Prof. Luis Orlando Carvalho — Material didático de Lógica de Programação</p>
+  <p>Fundamentos de Lógica de Programação com Python · Todos os direitos reservados.</p>
+</footer>
+
+</body>
+</html>
